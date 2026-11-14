@@ -7,8 +7,9 @@ from supabase_auth.errors import AuthApiError, AuthWeakPasswordError
 # Initialize connection.
 conn = st.connection("supabase",type=SupabaseConnection)
 supabase = conn.session_client()
-
 controller = CookieController()
+
+st.set_page_config(initial_sidebar_state="collapsed", page_title="scholarOS")
 
 def auth_page():
     st.title("Welcome!")
@@ -89,8 +90,20 @@ if "user" not in st.session_state:
         except Exception:
             controller.remove("refresh_token")
 
-    pg = st.navigation([st.Page(auth_page, title="Welcome")])
+    pg = st.navigation([st.Page(auth_page, title="scholarOS")])
 else:
     pg = st.navigation([st.Page("pages/0_home_page.py", title="Home")])
+    with st.sidebar:
+        with st.popover("Settings"):
+            st.write(f"Logged in as {st.session_state['user'].get('username')}")
+            log_out = st.button("Log Out")
+
+            if log_out:
+                supabase.auth.sign_out()
+                controller.remove("refresh_token")
+                time.sleep(0.5)
+                del st.session_state["user"]
+                st.rerun()
+
 
 pg.run()
