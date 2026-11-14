@@ -12,6 +12,7 @@ dependencies = [
     "plotly>=7.1.0",
     "st-supabase-connection>=2.2.1",
     "streamlit>=1.67.0",
+    "streamlit-cookies-controller>=0.0.4",
     "supabase>=2.34.1",
 ]
 
