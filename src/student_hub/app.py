@@ -1,5 +1,10 @@
 import streamlit as st
 from st_supabase_connection import SupabaseConnection
+from supabase_auth.errors import AuthApiError, AuthWeakPasswordError
+
+st.set_page_config(page_title="Onboarding")
+st.title("Welcome!")
+st.write("Sign up/Log in here!")
 
 # Initialize connection.
 conn = st.connection("supabase",type=SupabaseConnection)
@@ -7,6 +12,27 @@ conn = st.connection("supabase",type=SupabaseConnection)
 supabase = conn.session_client()
 
 tab1, tab2 = st.tabs(["Log In", "Create Account"])
+
+with tab1:
+    with st.form("login_form"):
+        login_email = st.text_input("Email")
+        login_password = st.text_input("Password", type="password")
+        login_submitted = st.form_submit_button("Log In")
+
+        if login_submitted: 
+            try:
+                res = supabase.auth.sign_in_with_password({"email": login_email, "password": login_password})
+                if res.user:
+                    profile_res = supabase.table("profiles").select("*").eq("id", res.user.id).single().execute()
+                    st.session_state["user"] = profile_res.data
+                    st.write(f"Welcome back, {st.session_state['user']}")
+                    st.rerun()
+            except Exception as e:
+                st.error(e)
+
+
+
+
 
 with tab2:
     with st.form("signup_form"):
@@ -19,17 +45,24 @@ with tab2:
         submitted = st.form_submit_button("Create Account")
 
         if submitted:
-            st.write(f"Welcome to ScholarOS, {username}!")
-            res = supabase.auth.sign_up({
-                "email": email,
-                "password": password
-            })
+            try:
+                res = supabase.auth.sign_up({
+                    "email": email,
+                    "password": password
+                })
 
-            profile = {
-                "id": res.user.id, # type: ignore
-                "username": username,
-                "name": name,
-                "age": age,
-                "school_year": school_year
-            }
-            supabase.table("profiles").insert(profile).execute()
+                profile = {
+                    "id": res.user.id, # type: ignore
+                    "username": username,
+                    "name": name,
+                    "age": age,
+                    "school_year": school_year
+                }
+                supabase.table("profiles").insert(profile).execute()
+                st.session_state["user"] = profile
+                st.write(f"Welcome to ScholarOS, {username}!")
+                st.rerun()
+            except AuthWeakPasswordError as awpe:
+                st.write(f"Your password has {len(password)} characters and needs to be at least 6 characters long.")
+            except AuthApiError as ape:
+                st.write(f"This user already has an account. Maybe try logging in as {username}?")
