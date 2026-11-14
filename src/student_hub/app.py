@@ -26,7 +26,7 @@ with tab2:
             })
 
             profile = {
-                "id": res.user.id,
+                "id": res.user.id, # type: ignore
                 "username": username,
                 "name": name,
                 "age": age,
