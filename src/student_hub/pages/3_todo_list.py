@@ -1,10 +1,8 @@
 import streamlit as st
 import time
-from st_supabase_connection import SupabaseConnection
 
 st.set_page_config(layout="wide")
-conn = st.connection("supabase", type=SupabaseConnection)
-supabase = conn.session_client()
+supabase = st.session_state["supabase"]
 
 with st.container(border=True):
     subject_res = supabase.table("todo").select("*").eq("user_id", st.session_state["user"].get("id")).execute()

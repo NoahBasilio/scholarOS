@@ -1,9 +1,6 @@
 import streamlit as st
-from st_supabase_connection import SupabaseConnection
 
-
-conn = st.connection("supabase", type=SupabaseConnection)
-supabase = conn.session_client()
+supabase = st.session_state["supabase"]
 st.set_page_config(initial_sidebar_state="collapsed", page_title="scholarOS", layout="wide")
 st.title(f"Welcome back, {st.session_state['user'].get('username')}!")
 
