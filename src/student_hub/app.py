@@ -43,7 +43,7 @@ def auth_page():
                         time.sleep(0.5)
                         st.rerun()
                 except Exception as e:
-                    st.error(f"Sign-up failed {e}")
+                    st.error(f"Sign-up failed: {e}")
 
 
 
