@@ -1,12 +1,21 @@
 import streamlit as st
 import time
 from streamlit_cookies_controller import CookieController
-from st_supabase_connection import SupabaseConnection
+from supabase import create_client, ClientOptions
 from supabase_auth.errors import AuthApiError, AuthWeakPasswordError
 
-# Initialize connection.
-conn = st.connection("supabase",type=SupabaseConnection)
-supabase = conn.session_client()
+if "supabase" not in st.session_state:
+    url = st.secrets["connections"]["supabase"]["SUPABASE_URL"]
+    key = st.secrets["connections"]["supabase"]["SUPABASE_KEY"]
+    options = ClientOptions(
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+        }
+    )
+    st.session_state["supabase"] = create_client(url, key, options=options)
+
+supabase = st.session_state["supabase"]
 controller = CookieController()
 
 st.set_page_config(initial_sidebar_state="collapsed", page_title="scholarOS", layout="centered")
@@ -34,7 +43,7 @@ def auth_page():
                         time.sleep(0.5)
                         st.rerun()
                 except Exception as e:
-                    st.error(e)
+                    st.error(f)
 
 
 
@@ -75,6 +84,8 @@ def auth_page():
                     st.write(f"Your password has {len(password)} characters and needs to be at least 6 characters long.")
                 except AuthApiError:
                     st.write(f"This user already has an account. Maybe try logging in as {username}?")
+                except Exception as e:
+                    st.error(f"Sign-up failed: {e}")
 
 if "user" not in st.session_state:
     saved_token = controller.get("refresh_token")
