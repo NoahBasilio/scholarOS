@@ -9,7 +9,7 @@ conn = st.connection("supabase",type=SupabaseConnection)
 supabase = conn.session_client()
 controller = CookieController()
 
-st.set_page_config(initial_sidebar_state="collapsed", page_title="scholarOS")
+st.set_page_config(initial_sidebar_state="collapsed", page_title="scholarOS", layout="centered")
 
 def auth_page():
     st.title("Welcome!")
@@ -92,10 +92,10 @@ if "user" not in st.session_state:
 
     pg = st.navigation([st.Page(auth_page, title="scholarOS")])
 else:
-    pg = st.navigation([st.Page("pages/0_home_page.py", title="Home")])
+    pg = st.navigation([st.Page("pages/0_home_page.py", title="Home"), st.Page("pages/1_gpa_calculator.py", title="GPA Calculator"), st.Page("pages/2_pomodoro_timer.py", title="Pomodoro Timer"), st.Page("pages/3_todo_list.py", title="To-Do List")])
     with st.sidebar:
         with st.popover("Settings"):
-            st.write(f"Logged in as {st.session_state['user'].get('username')}")
+            st.write(f"Logged in as {st.session_state['user'].get('username')}!")
             log_out = st.button("Log Out")
 
             if log_out:
